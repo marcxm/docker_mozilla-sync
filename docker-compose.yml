@@ -1,0 +1,34 @@
+version: "3.3"
+
+services:
+
+  mozilla-sync:
+    image: mozilla/syncserver:latest
+    hostname: mozilla-sync
+    restart: always
+    container_name: "mozilla-sync"
+    environment:
+      - PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/root
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Warsaw
+      - SYNCSERVER_PUBLIC_URL=http://my.domain:5000
+      - SYNCSERVER_SECRET=mypassword
+      - SYNCSERVER_SQLURI=sqlite:////data/syncserver.db
+      - SYNCSERVER_BATCH_UPLOAD_ENABLED=true
+      - SYNCSERVER_FORCE_WSGI_ENVIRON=false
+    entrypoint: ["/usr/bin/dumb-init", "/app/docker-entrypoint.sh"]
+    command: ["server"]
+    ports:
+      - "5000:5000"
+    networks:
+      mynetwork:
+        aliases:
+          - mozilla-sync
+    volumes:
+      - "./syncserver:/data"
+networks:
+  mynetwork:
+    external:
+     name: mynetwork
+
